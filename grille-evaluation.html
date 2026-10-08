@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0058)file:///C:/Users/sbonn/Downloads/Cap_Talents_Fusion_1.html -->
 <html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Cap Talents !! — Solerys × UES</title>
 <meta name="theme-color" content="#133964">
-<link href="./Cap Talents !!_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#133964; --teal:#0F6E56; --teal-light:#E7F3EF;
@@ -89,6 +88,14 @@
   .footer-strip .txt b{color:var(--teal);display:block;font-size:11px;}
   .contact-line{text-align:center;font-size:11px;color:var(--text-muted);margin-top:10px;}
 
+  .auto-row{display:flex;gap:8px;margin-top:4px;}
+  .auto-cell{flex:1;background:#F5F7F9;border-radius:10px;padding:8px 6px;text-align:center;}
+  .auto-cell .v{font-family:'Atkinson Hyperlegible',serif;font-size:20px;font-weight:700;color:var(--navy);}
+  .auto-cell .l{font-size:10px;color:var(--text-muted);line-height:1.3;}
+  .hint{font-size:11px;color:var(--text-muted);margin-top:6px;}
+  .diff .appui{display:block;font-size:11.5px;color:var(--teal);font-weight:700;}
+  .dash{border:2px solid var(--navy);}
+  .dash .prio{font-size:13px;color:var(--text);padding:6px 2px;border-bottom:1px solid var(--border);min-height:30px;}
   .reset-btn{display:block;margin:6px auto 0 auto;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:8px 18px;border-radius:100px;}
 
   /* ---------- print ---------- */
@@ -148,6 +155,8 @@
         <tr><td><input id="e4_a"></td><td><input id="e4_b"></td><td><input id="e4_c"></td><td><input id="e4_d"></td></tr>
         <tr><td><input id="e5_a"></td><td><input id="e5_b"></td><td><input id="e5_c"></td><td><input id="e5_d"></td></tr>
       </tbody></table>
+      <div class="field-lbl" style="margin-top:12px;">Ma phrase d'accroche pour une candidature spontanée</div>
+      <input type="text" class="field-input" id="f_accroche">
     </div>
 
     <div class="block">
@@ -156,6 +165,16 @@
       <input type="text" class="field-input" id="f_bien">
       <div class="field-lbl">Ce que je veux travailler</div>
       <input type="text" class="field-input" id="f_travailler">
+    </div>
+
+    <div class="block">
+      <div class="block-title"><span class="dot navy"></span><h2>Mon bilan</h2><span class="step">Étape 4</span></div>
+      <div class="auto-row">
+        <div class="auto-cell"><div class="v"><span class="b_cv">0</span>/8</div><div class="l">Score CV<br>(étape 2)</div></div>
+        <div class="auto-cell"><div class="v"><span class="b_it">0</span>/8</div><div class="l">Score entretien<br>(étape 3)</div></div>
+        <div class="auto-cell"><div class="v"><span class="b_ent">0</span></div><div class="l">Entreprises<br>ciblées</div></div>
+      </div>
+      <div class="hint">Ces chiffres se remplissent automatiquement à partir de vos grilles et de votre tableau d'entreprises.</div>
     </div>
 
     <div class="block">
@@ -168,7 +187,7 @@
       </tbody></table>
     </div>
 
-    <div class="block" style="margin-bottom:0;">
+    <div class="block">
       <div class="block-title"><span class="dot navy"></span><h2>Mon calendrier, semaine par semaine</h2><span class="step">Étape 4</span></div>
       <div class="cal-row">
         <div class="cal-col"><div class="wk">Semaine 1</div><input id="w1"></div>
@@ -176,6 +195,32 @@
         <div class="cal-col"><div class="wk">Semaine 3</div><input id="w3"></div>
         <div class="cal-col"><div class="wk">Semaine 4</div><input id="w4"></div>
       </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title"><span class="dot coral"></span><h2>Mes difficultés et mes appuis Solerys</h2><span class="step">Étape 4</span></div>
+      <div class="field-lbl">Cochez ce qui vous concerne :</div>
+      <div class="check-inline diff" data-key="d1"><div class="box"></div><span>Je manque d'aisance à l'oral<span class="appui">→ Simulation d'entretien avec votre consultant</span></span></div>
+      <div class="check-inline diff" data-key="d2"><div class="box"></div><span>J'ai peu de réseau professionnel<span class="appui">→ Méthode du marché caché (étape 2)</span></span></div>
+      <div class="check-inline diff" data-key="d3"><div class="box"></div><span>Je suis mal à l'aise avec le numérique<span class="appui">→ Accompagnement numérique, à votre rythme</span></span></div>
+      <div class="check-inline diff" data-key="d4"><div class="box"></div><span>Ma motivation baisse<span class="appui">→ En parler ouvertement au rendez-vous UES</span></span></div>
+      <div class="check-inline diff" data-key="d5"><div class="box"></div><span>J'hésite à relancer un employeur<span class="appui">→ Planifier vos relances dans votre calendrier</span></span></div>
+      <div class="field-lbl">Autre difficulté, et l'appui qui pourrait m'aider</div>
+      <input type="text" class="field-input" id="f_autre_diff">
+    </div>
+
+    <div class="block dash" style="margin-bottom:0;">
+      <div class="block-title"><span class="dot navy"></span><h2>Mon tableau de bord — à montrer à mon consultant</h2><span class="step">Étape 5</span></div>
+      <div class="auto-row">
+        <div class="auto-cell"><div class="v"><span class="b_cv">0</span>/8</div><div class="l">Score CV</div></div>
+        <div class="auto-cell"><div class="v"><span class="b_it">0</span>/8</div><div class="l">Score entretien</div></div>
+        <div class="auto-cell"><div class="v"><span class="b_ent">0</span></div><div class="l">Entreprises ciblées</div></div>
+      </div>
+      <div class="field-lbl" style="margin-top:10px;">Ma priorité principale</div>
+      <div class="prio" id="d_prio">—</div>
+      <div class="field-lbl">Ce que j'attends du rendez-vous (un avis, un ajustement, une validation, un nouveau cap…)</div>
+      <input type="text" class="field-input" id="f_attente">
+      <div class="check-inline" data-key="c_ues" style="margin-top:8px;"><div class="box"></div>Je souhaite que mon consultant me présente l'accompagnement UES, Un Emploi Stable</div>
     </div>
 
     <div class="footer-strip" style="margin-top:14px;">
@@ -243,7 +288,8 @@
   const TEXT_IDS = ["f_name","f_date","f_titre","f_exp1","f_exp2","f_bien","f_travailler",
     "e1_a","e1_b","e1_c","e1_d","e2_a","e2_b","e2_c","e2_d","e3_a","e3_b","e3_c","e3_d",
     "e4_a","e4_b","e4_c","e4_d","e5_a","e5_b","e5_c","e5_d",
-    "p1_a","p1_b","p1_c","p2_a","p2_b","p2_c","p3_a","p3_b","p3_c","w1","w2","w3","w4"];
+    "p1_a","p1_b","p1_c","p2_a","p2_b","p2_c","p3_a","p3_b","p3_c","w1","w2","w3","w4",
+    "f_accroche","f_autre_diff","f_attente"];
 
   // ---- tabs ----
   const tabRecto = document.getElementById('tabRecto'), tabVerso = document.getElementById('tabVerso');
@@ -289,8 +335,23 @@
     it.addEventListener('click', ()=>{ it.classList.toggle('on'); persist(); });
   });
 
+  // ---- bilan + tableau de bord (calculés automatiquement) ----
+  function refreshSummary(){
+    const cv = document.querySelectorAll('#cvGrid .gitem.on').length;
+    const it = document.querySelectorAll('#itGrid .gitem.on').length;
+    let ent = 0;
+    for(let i=1;i<=5;i++){ const el=document.getElementById('e'+i+'_a'); if(el && el.value.trim()) ent++; }
+    document.querySelectorAll('.b_cv').forEach(e=>e.textContent=cv);
+    document.querySelectorAll('.b_it').forEach(e=>e.textContent=it);
+    document.querySelectorAll('.b_ent').forEach(e=>e.textContent=ent);
+    const p = document.getElementById('p1_a'), a = document.getElementById('p1_b');
+    const txt = [p && p.value.trim(), a && a.value.trim()].filter(Boolean).join(' — ');
+    document.getElementById('d_prio').textContent = txt || '—';
+  }
+
   // ---- persistence ----
   function persist(){
+    refreshSummary();
     try{
       const state = { text:{}, checks:{}, gitems:{} };
       TEXT_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) state.text[id]=el.value; });
@@ -311,13 +372,14 @@
     }catch(e){}
   }
   restore();
+  refreshSummary();
   TEXT_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', persist); });
 
   document.getElementById('resetBtn').addEventListener('click', ()=>{
     if(!confirm('Effacer tout le contenu de votre carnet ?')) return;
     TEXT_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
     document.querySelectorAll('.check-inline.on, .gitem.on').forEach(it=>it.classList.remove('on'));
-    updateCv(false); updateIt(false);
+    updateCv(false); updateIt(false); refreshSummary();
     try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   });
 })();
