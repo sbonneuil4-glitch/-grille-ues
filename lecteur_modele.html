@@ -139,7 +139,8 @@ video{width:100%;max-height:calc(100vh - 80px - 110px);background:#000;border-ra
 
 #ctrl{display:flex;gap:12px;justify-content:center;margin-top:10px}
 #ctrl button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:10px 22px;font-size:20px;font-weight:700;min-width:130px;transition:background .2s}
-#ctrl button:hover{background:var(--orange);border-color:var(--orange)}
+#ctrl button:disabled{opacity:.35;cursor:not-allowed}
+#ctrl button:hover:not(:disabled){background:var(--orange);border-color:var(--orange)}
 #prog{cursor:pointer;height:12px} #prog:hover{height:16px}
 .donebtn{margin-left:auto;padding:10px 16px!important;background:var(--green);color:#fff;border:0;border-radius:12px;padding:12px;font-size:18px;font-weight:800}
 .donebtn:hover{filter:brightness(1.1)}
@@ -277,7 +278,7 @@ function playClip(i){
   const p=v.play(); if(p&&p.catch) p.catch(()=>{});
 }
 function nextClip(){ if(cur+1<CL.length) playClip(cur+1); else $('end').style.display='flex'; }
-v.addEventListener('ended',()=>{ const m=CL[cur].m; if(m>=0&&!done.has(m)) startWork(m); else nextClip(); });
+v.addEventListener('ended',()=>{ if(working) return; const m=CL[cur].m; if(m>=0&&!done.has(m)) startWork(m); else nextClip(); });
 
 /* ---------- Signal sonore ---------- */
 let ac=null;
@@ -319,7 +320,7 @@ STEPS.slice(1).forEach(s=>{ const b=document.createElement('b'); b.style.left=(s
 
 /* ---------- Commandes : pause, retour, avance, plein écran ---------- */
 let workPaused=false, workLeft=0;
-function updPlayBtn(){ $('bPlay').textContent = working ? (workPaused?'▶ Reprendre':'❚❚ Pause') : (v.paused?'▶ Lecture':'❚❚ Pause'); }
+function updPlayBtn(){ $('bFwd').disabled=!!working; $('bFwd').title=working?'Pendant le temps de travail, utilisez « J\'ai terminé » pour passer à la suite':'Avancer de 10 secondes'; $('bPlay').textContent = working ? (workPaused?'▶ Reprendre':'❚❚ Pause') : (v.paused?'▶ Lecture':'❚❚ Pause'); }
 v.addEventListener('play',updPlayBtn); v.addEventListener('pause',updPlayBtn);
 function togglePlay(){
   if(working){ if(!workPaused){ workPaused=true; workLeft=workEnd-Date.now(); clearInterval(tick); }
@@ -341,7 +342,7 @@ function goBack(){
   seekGlobal(gt()-10);
 }
 function goFwd(){
-  if(working){ stopWork(true); return; }
+  if(working) return;
   const c=CL[cur];
   if(v.currentTime+10>=v.duration-0.1){ if(c.m>=0&&!done.has(c.m)){ v.currentTime=Math.max(0,v.duration-0.15); v.play(); } else seekGlobal(c.e+0.01+(v.currentTime+10-v.duration)); }
   else v.currentTime+=10;
@@ -379,7 +380,8 @@ function stopWork(resume){
 /* ---------- Sous-titres et progression ---------- */
 function loop(){
   const t=gt();
-  if(!working){ const c=CUES.find(c=>t>=c[0]&&t<=c[1]+0.15); $('cap').textContent=c?c[2]:''; }
+  if(!working){ const c=CUES.find(c=>t>=c[0]&&t<=c[1]+0.15); $('cap').textContent=c?c[2]:'';
+    const m=CL[cur].m; if(m>=0&&!done.has(m)&&v.duration&&isFinite(v.duration)&&v.currentTime>=v.duration-0.06&&$('home').style.display==='none') startWork(m); }
   $('prog').firstElementChild.style.width=(t/DURATION*100)+'%';
   const k=stepOf(t); $('curStep').textContent=`Étape ${k+1} · ${STEPS[k].title}`;
   requestAnimationFrame(loop);
