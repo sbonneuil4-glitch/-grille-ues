@@ -136,6 +136,17 @@ video{width:100%;max-height:calc(100vh - 80px - 110px);background:#000;border-ra
 .stars button:hover,.stars button.on{background:var(--orange);border-color:var(--orange)}
 .stars button:hover b,.stars button.on b{color:#fff}
 #thanks{min-height:28px;font-size:20px;color:var(--amber);margin-bottom:18px}
+
+#ctrl{display:flex;gap:12px;justify-content:center;margin-top:10px}
+#ctrl button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:10px 22px;font-size:20px;font-weight:700;min-width:130px;transition:background .2s}
+#ctrl button:hover{background:var(--orange);border-color:var(--orange)}
+#stage.work #ctrl{visibility:hidden}
+#prog{cursor:pointer;height:12px} #prog:hover{height:16px}
+.donebtn{margin-left:auto;padding:10px 16px!important;background:var(--green);color:#fff;border:0;border-radius:12px;padding:12px;font-size:18px;font-weight:800}
+.donebtn:hover{filter:brightness(1.1)}
+#somClose{background:var(--orange)!important;border-color:var(--orange)!important;font-size:22px!important;padding:14px 26px!important}
+#cap{min-height:70px}
+video{max-height:calc(100vh - 80px - 160px)}
 </style>
 </head>
 <body>
@@ -194,11 +205,13 @@ video{width:100%;max-height:calc(100vh - 80px - 110px);background:#000;border-ra
 </div>
 <div id="prog"><i></i></div>
 <div id="stage">
-  <div id="vidwrap"><video id="v" playsinline preload="auto"></video><div id="cap"></div></div>
+  <div id="vidwrap"><video id="v" playsinline preload="auto"></video>
+    <div id="ctrl"><button id="bBack" title="Reculer de 10 secondes">⟲ 10 s</button><button id="bPlay" title="Pause / lecture">❚❚ Pause</button><button id="bFwd" title="Avancer de 10 secondes">10 s ⟳</button></div>
+    <div id="cap"></div></div>
   <aside id="work"><div class="in">
     <div class="hd"><span class="tag">À VOUS</span><span id="wStep"></span></div>
     <div id="wTitle"></div>
-    <div><div class="trow"><div id="timer">00:00</div><div id="warnMsg">Plus qu'une minute !</div></div><div id="tbar"><i></i></div></div>
+    <div><div class="trow"><div id="timer">00:00</div><div id="warnMsg">Plus qu'une minute !</div><button id="bDone" class="donebtn">J'ai terminé ▸</button></div><div id="tbar"><i></i></div></div>
     <div class="qrs" id="wQr"></div>
     <div class="box"><h4>Consigne</h4><div id="wCons"></div></div>
     <div class="box ex"><h4>Exemple</h4><div id="wEx"></div></div>
@@ -208,7 +221,7 @@ video{width:100%;max-height:calc(100vh - 80px - 110px);background:#000;border-ra
 
 <!-- ================= SOMMAIRE INTERACTIF ================= -->
 <section id="som">
-  <div class="sh"><div><div class="eyebrow">• • • VOTRE PARCOURS</div><h2>Sommaire interactif</h2></div><button id="somClose">✕ Fermer</button></div>
+  <div class="sh"><div><div class="eyebrow">• • • VOTRE PARCOURS</div><h2>Sommaire interactif</h2></div><button id="somClose">◀ Retour à la vidéo</button></div>
   <div class="track" id="track"></div>
   <div id="detail"></div>
 </section>
@@ -282,19 +295,40 @@ function renderSom(){
   if(selStep===null){ $('detail').innerHTML=''; return; }
   const s=STEPS[selStep], acts=stepActs(selStep);
   $('detail').innerHTML=`<div class="detail"><div><h4>Pourquoi cette étape ?</h4><p>${s.why}</p><h4>Ce que vous allez produire</h4><p>${s.prod}</p><button class="big go" id="goStep">▶ Démarrer l'étape ${selStep+1}</button></div><div><h4>Vos actions « À vous »</h4><div class="acts">${acts.map(o=>`<button class="act${done.has(o.k)?' ok':''}" data-k="${o.k}"><span class="ck">${done.has(o.k)?'✓':''}</span><span>Action ${o.k+1} · ${o.m.title}</span><span class="du">${o.m.min} min</span></button>`).join('')}</div></div></div>`;
-  $('goStep').onclick=()=>{ closeSom(); goTo(CL.findIndex(c=>Math.abs(c.s-s.t)<0.2)); };
-  document.querySelectorAll('.act').forEach(b=>b.onclick=()=>{ closeSom(); goTo(CL.findIndex(c=>c.m===+b.dataset.k)); });
+  $('goStep').onclick=()=>{ closeSom(false); goTo(CL.findIndex(c=>Math.abs(c.s-s.t)<0.2)); };
+  document.querySelectorAll('.act').forEach(b=>b.onclick=()=>{ closeSom(false); goTo(CL.findIndex(c=>c.m===+b.dataset.k)); });
 }
-function openSom(){ selStep=stepOf(gt()); renderSom(); $('som').classList.add('open'); }
-function closeSom(){ $('som').classList.remove('open'); }
+let somWasPlaying=false;
+function openSom(){ selStep=stepOf(gt()); renderSom(); somWasPlaying=!v.paused; v.pause(); $('som').classList.add('open'); $('btnSom').textContent='◀ Retour à la vidéo'; }
+function closeSom(resume=true){ $('som').classList.remove('open'); $('btnSom').textContent='☰ Sommaire'; if(resume&&somWasPlaying&&!working) v.play(); }
 $('btnSom').onclick=()=>{ $('som').classList.contains('open')?closeSom():openSom(); };
-$('somClose').onclick=closeSom;
+$('somClose').onclick=()=>closeSom();
 function goTo(i){
   if(i<0) return; if(working) stopWork(false);
   const t=CL[i].s; M.forEach((m,k)=>{ if(m.stop<=t) done.add(k); else done.delete(k); });
   playClip(i);
 }
 STEPS.slice(1).forEach(s=>{ const b=document.createElement('b'); b.style.left=(s.t/DURATION*100)+'%'; $('prog').appendChild(b); });
+
+
+/* ---------- Commandes : pause, retour, avance, barre de progression ---------- */
+function updPlayBtn(){ $('bPlay').textContent=v.paused?'▶ Lecture':'❚❚ Pause'; }
+v.addEventListener('play',updPlayBtn); v.addEventListener('pause',updPlayBtn);
+$('bPlay').onclick=()=>{ if(working) return; v.paused?v.play():v.pause(); };
+function clipAt(T){ for(let i=0;i<CL.length;i++){ if(T<CL[i].e) return T<CL[i].s?i:i; } return CL.length-1; }
+function seekGlobal(T){
+  if(working) return; T=Math.max(0,Math.min(T,DURATION-0.2));
+  const i=clipAt(T), off=Math.max(0,T-CL[i].s);
+  M.forEach((m,k)=>{ if(m.stop<=CL[i].s+0.05) done.add(k); else done.delete(k); });
+  if(i===cur){ v.currentTime=off; if(v.paused) v.play(); }
+  else { cur=i; v.src='data:video/mp4;base64,'+CL[i].d; v.addEventListener('loadedmetadata',()=>{ v.currentTime=off; v.play(); },{once:true}); }
+}
+$('bBack').onclick=()=>seekGlobal(gt()-10);
+$('bFwd').onclick=()=>{ if(working) return; const c=CL[cur];
+  if(v.currentTime+10>=v.duration-0.1){ if(c.m>=0&&!done.has(c.m)){ v.currentTime=Math.max(0,v.duration-0.15); v.play(); } else seekGlobal(c.e+0.01+ (v.currentTime+10-v.duration)); }
+  else v.currentTime+=10; };
+$('prog').addEventListener('click',e=>{ if(working) return; seekGlobal(e.clientX/window.innerWidth*DURATION); });
+$('bDone').onclick=()=>{ if(working) stopWork(true); };
 
 /* ---------- Temps de travail : l'image de fin reste affichée ---------- */
 function fmt(s){ s=Math.max(0,Math.ceil(s)); return pad(Math.floor(s/60))+':'+pad(s%60); }
@@ -342,6 +376,9 @@ $('btnAgain').onclick=()=>{ $('end').style.display='none'; $('home').style.displ
 /* ---------- Raccourcis réservés à l'équipe ---------- */
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape') closeSom();
+  if(e.key===' '&&!working&&!$('som').classList.contains('open')&&$('home').style.display==='none'){ e.preventDefault(); v.paused?v.play():v.pause(); }
+  if(e.key==='ArrowLeft') seekGlobal(gt()-10);
+  if(e.key==='ArrowRight') $('bFwd').onclick();
   if(e.shiftKey&&(e.key==='S'||e.key==='s')&&working) workEnd=Date.now()+1500;
   if(e.shiftKey&&(e.key==='N'||e.key==='n')){ let r={}; try{ r=JSON.parse(localStorage.getItem('ues_notes')||'{}'); }catch(_){} alert('Notes enregistrées sur ce poste : '+JSON.stringify(r)); }
 });
