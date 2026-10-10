@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commande vocale – Classeur KPI Solerys × UES</title>
+<style>
+  :root{--navy:#0C1C3A;--blue:#16305C;--orange:#E8541E;--green:#2E8B57;--pale:#F3F6FB;--ink:#1d2433}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Calibri,Arial,sans-serif;background:var(--pale);color:var(--ink)}
+  header{background:var(--navy);color:#fff;padding:18px 22px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;opacity:.85;font-size:14px}
+  .bar{height:6px;background:linear-gradient(90deg,var(--orange),#f39b6d)}
+  main{max-width:760px;margin:0 auto;padding:22px 16px 40px}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(12,28,58,.08);padding:22px;margin-bottom:18px}
+  .mic-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  #mic{width:120px;height:120px;border-radius:50%;border:none;background:var(--orange);color:#fff;font-size:52px;cursor:pointer;
+       box-shadow:0 6px 18px rgba(232,84,30,.35);transition:transform .15s}
+  #mic:hover{transform:scale(1.05)}
+  #mic.on{background:var(--green);animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,139,87,.55)}70%{box-shadow:0 0 0 22px rgba(46,139,87,0)}100%{box-shadow:0 0 0 0 rgba(46,139,87,0)}}
+  #state{font-size:16px;font-weight:600;color:var(--blue);text-align:center;min-height:22px}
+  #heard{font-size:20px;text-align:center;color:var(--navy);min-height:28px;font-style:italic}
+  #result{display:none;text-align:center}
+  #result .msg{font-size:16px;margin-bottom:12px}
+  .btn{display:inline-block;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:12px 18px;font-size:15px;cursor:pointer;text-decoration:none;margin:4px}
+  .btn.orange{background:var(--orange)}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .row input{flex:1;padding:12px;border:2px solid #cfd8e6;border-radius:10px;font-size:15px}
+  h2{font-size:17px;color:var(--navy);margin:0 0 10px}
+  ul{margin:0;padding-left:18px;line-height:1.7}
+  code{background:var(--pale);padding:2px 6px;border-radius:6px;color:var(--blue)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+  .grid a{display:block;text-align:center;padding:12px 8px;border-radius:10px;color:#fff;text-decoration:none;font-weight:600;font-size:14px}
+  footer{text-align:center;font-size:12px;color:#6b7385;margin-top:10px}
+  .note{font-size:13px;color:#555}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎤 Commande vocale du classeur</h1>
+  <p>Révélez vos talents • Solerys × UES, Un Emploi Stable • HB FORMATION</p>
+</header>
+<div class="bar"></div>
+<main>
+  <div class="card mic-wrap">
+    <button id="mic" title="Appuyez puis parlez">🎤</button>
+    <div id="state">Appuyez sur le micro, puis parlez.</div>
+    <div id="heard"></div>
+    <div id="result"><div class="msg" id="msg"></div><div id="actions"></div></div>
+    <div class="row" style="width:100%">
+      <input id="typed" placeholder="Ou écrivez une commande : « ouvre les avis », « cherche Julie Martin »…">
+      <button class="btn" id="go">Valider</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ce que vous pouvez dire</h2>
+    <ul>
+      <li><code>Ouvre l'onglet avis des participants</code></li>
+      <li><code>Ouvre le tableau de bord</code> • <code>Ouvre le parcours</code> • <code>Ouvre la grille</code> • <code>Ouvre l'accueil</code></li>
+      <li><code>Cherche Julie Martin</code> ou <code>Montre les réponses de Julie Martin</code> : la fiche complète s'ouvre ; collez le nom avec <b>Ctrl + V</b> puis <b>Entrée</b>.</li>
+    </ul>
+    <p class="note">Le classeur s'ouvre dans un onglet dédié, toujours le même : gardez cette page ouverte comme une télécommande.</p>
+  </div>
+
+  <div class="card">
+    <h2>Accès direct</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+  <footer>Reconnaissance vocale du navigateur (Microsoft Edge ou Google Chrome recommandés). Aucune donnée personnelle n'est enregistrée par cette page.</footer>
+</main>
+<script>
+const BASE = "https://hbformation-my.sharepoint.com/personal/stephanebonneuil_hbformation_onmicrosoft_com/_layouts/15/Doc.aspx?sourcedoc={a90c56d0-c5e0-44d7-a8ac-227ad2c968a4}&action=default";
+const SHEETS = [
+  {k:["accueil","sommaire","menu"], name:"Accueil", cell:"D10", label:"l'accueil", color:"#0C1C3A"},
+  {k:["tableau de bord","indicateur","statistique","chiffre"], name:"Indicateurs", cell:"A1", label:"le tableau de bord", color:"#16305C"},
+  {k:["reponses complete","reponse complete","fiche","questionnaire","journal"], name:"Réponses complètes", cell:"C5", label:"les réponses complètes", color:"#2E8B57"},
+  {k:["avis","satisfaction","retour des participants"], name:"Avis participants", cell:"A1", label:"les avis des participants", color:"#E8541E"},
+  {k:["grille","positionnement","calcul","niveau"], name:"Grille de positionnement", cell:"A1", label:"la grille de positionnement", color:"#5B6B85"},
+  {k:["parcours","personnes","tableau des reponses"], name:"Parcours", cell:"A1", label:"le parcours des personnes", color:"#16305C"}
+];
+const $ = id => document.getElementById(id);
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[’']/g," ").replace(/\s+/g," ").trim();
+const urlFor = (sh, cell) => BASE + "&activeCell=" + encodeURIComponent("'" + sh + "'!" + cell);
+
+function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.lang="fr-FR"; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+function openUrl(u){ const w = window.open(u, "classeur_kpi"); if(!w){ return false;} try{w.focus();}catch(e){} return true; }
+
+function show(msg, buttons){
+  $("result").style.display="block"; $("msg").innerHTML = msg; const a=$("actions"); a.innerHTML="";
+  (buttons||[]).forEach(b=>{ const x=document.createElement("button"); x.className="btn "+(b.cls||""); x.textContent=b.t; x.onclick=b.f; a.appendChild(x); });
+}
+
+function handle(raw){
+  const text = raw.trim(); if(!text) return;
+  $("heard").textContent = "« " + text + " »";
+  const n = norm(text);
+  // 1) recherche d'une personne
+  const m = n.match(/(?:cherche|recherche|trouve|montre(?:-moi)?|affiche|ouvre)\s+(?:moi\s+)?(?:la fiche de|les reponses de|la reponse de|le dossier de|les resultats de|la personne|de)?\s*(.+)$/);
+  const isSheet = SHEETS.some(s => s.k.some(k => n.includes(k)));
+  let person = null;
+  if(m && (/cherche|recherche|trouve/.test(n) || /(reponses|fiche|dossier|resultats) de /.test(n))){
+    person = text.replace(/^.*?\b(cherche|recherche|trouve|montre(-moi)?|affiche|ouvre)\b\s*/i,"")
+                 .replace(/^(moi\s+)?(la fiche de|les réponses de|les reponses de|la réponse de|le dossier de|les résultats de|la personne|de)\s+/i,"")
+                 .replace(/[.?!]+$/,"").trim();
+  }
+  if(person && !(isSheet && person.split(" ").length===1 && SHEETS.some(s=>s.k.includes(norm(person))))){
+    const url = urlFor("Réponses complètes","C5");
+    const go = () => { navigator.clipboard && navigator.clipboard.writeText(person).catch(()=>{}); openUrl(url); };
+    try{ navigator.clipboard.writeText(person); }catch(e){}
+    const ok = openUrl(url);
+    speak("J'ouvre la fiche. Collez le nom " + person + " dans la case jaune.");
+    show("Fiche complète ouverte. Dans la case jaune, faites <b>Ctrl + V</b> puis <b>Entrée</b> pour afficher <b>" + person + "</b>.",
+      ok ? [{t:"📋 Copier à nouveau le nom", f:()=>navigator.clipboard.writeText(person)}] : [{t:"Ouvrir la fiche de " + person, cls:"orange", f:go}]);
+    return;
+  }
+  // 2) ouverture d'un onglet
+  const s = SHEETS.find(s => s.k.some(k => n.includes(k)));
+  if(s){
+    const url = urlFor(s.name, s.cell);
+    const ok = openUrl(url);
+    speak("J'ouvre " + s.label + ".");
+    show("Ouverture de <b>" + s.name + "</b>.", ok ? [] : [{t:"Ouvrir " + s.name, cls:"orange", f:()=>openUrl(url)}]);
+    return;
+  }
+  speak("Je n'ai pas compris. Dites par exemple : ouvre les avis, ou cherche Julie Martin.");
+  show("Commande non reconnue. Essayez : « ouvre les avis » ou « cherche Julie Martin ».");
+}
+
+// grille d'accès direct
+SHEETS.forEach(s=>{ const a=document.createElement("a"); a.href=urlFor(s.name,s.cell); a.target="classeur_kpi"; a.textContent=s.name; a.style.background=s.color; $("grid").appendChild(a); });
+
+// reconnaissance vocale
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+if(SR){
+  rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.maxAlternatives = 1;
+  rec.onstart = ()=>{ listening=true; $("mic").classList.add("on"); $("state").textContent="Je vous écoute…"; };
+  rec.onend = ()=>{ listening=false; $("mic").classList.remove("on"); if($("state").textContent==="Je vous écoute…") $("state").textContent="Appuyez sur le micro, puis parlez."; };
+  rec.onerror = e=>{ $("state").textContent = e.error==="not-allowed" ? "Autorisez l'accès au micro dans le navigateur (icône à gauche de l'adresse)." : "Micro indisponible : écrivez la commande ci-dessous."; };
+  rec.onresult = e=>{
+    let t=""; let fin=false;
+    for(const r of e.results){ t += r[0].transcript; if(r.isFinal) fin=true; }
+    $("heard").textContent = "« " + t + " »";
+    if(fin){ $("state").textContent="Commande reçue."; handle(t); }
+  };
+  $("mic").onclick = ()=>{ if(listening){ rec.stop(); return; } $("result").style.display="none"; try{ rec.start(); }catch(e){} };
+}else{
+  $("mic").disabled = true; $("mic").style.opacity=.5;
+  $("state").textContent = "La reconnaissance vocale n'est pas disponible dans ce navigateur : utilisez Microsoft Edge ou Google Chrome, ou écrivez la commande.";
+}
+$("go").onclick = ()=> handle($("typed").value);
+$("typed").addEventListener("keydown", e=>{ if(e.key==="Enter") handle($("typed").value); });
+</script>
+</body>
+</html>
